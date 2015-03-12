@@ -1,0 +1,28 @@
+package com.patter.creater;
+
+public class BenzModel extends CarModel {
+
+    @Override
+    protected void start() {
+        System.out.println("Benz start");
+    }
+
+    @Override
+    protected void stop() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected void alarm() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected void engineBoom() {
+        // TODO Auto-generated method stub
+
+    }
+
+}
