@@ -1,0 +1,12 @@
+package com.patter.template;
+
+public class Client {
+
+    public static void main(String[] args) {
+        HumerModel h1 = new HummerH1Model();
+        h1.run();
+
+        HumerModel h2 = new HumberH2Model();
+        h2.run();
+    }
+}

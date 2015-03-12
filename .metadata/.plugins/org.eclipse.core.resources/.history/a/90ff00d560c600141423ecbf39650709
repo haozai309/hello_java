@@ -1,0 +1,12 @@
+package com.pattern.abstractFactory;
+
+
+public class FemaleYellowHuman extends AbstractYellowHuman {
+
+    @Override
+    public void getSex() {
+        // TODO Auto-generated method stub
+        
+    }
+    
+}

@@ -1,0 +1,8 @@
+package com.pattern.abstractFactory;
+
+public class Human {
+
+    public void getColor();
+    
+    
+}

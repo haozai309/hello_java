@@ -1,0 +1,33 @@
+package com.patter.template;
+
+public class CopyOfHumberH2Model extends HumerModel {
+
+    @Override
+    public void start() {
+        System.out.println("Humer H1 start");
+    }
+
+    @Override
+    public void stop() {
+        System.out.println("Humer H1 stop");
+    }
+
+    @Override
+    public void alarm() {
+        System.out.println("Humer H1 alarm");
+    }
+
+    @Override
+    public void engineBoom() {
+        System.out.println("Humer H1 engine boom");
+    }
+
+    @Override
+    public void run() {
+        this.start();
+        this.engineBoom();
+        this.alarm();
+        this.stop();
+    }
+
+}

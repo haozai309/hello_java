@@ -1,0 +1,28 @@
+package com.pattern.singleInstance;
+
+import java.util.ArrayList;
+
+public class MultiEmperor {
+
+    private static final int MAX_NUMBER_EMPEROR = 2;
+
+    private static ArrayList<String> mNameList = new ArrayList<String>();
+
+    private static ArrayList<MultiEmperor> mEmperorList = new ArrayList<MultiEmperor>();
+
+    private static int mCountNumber = 0;
+
+    static {
+        for (int i = 0; i < MAX_NUMBER_EMPEROR; i++) {
+            mEmperorList.add(new MultiEmperor("This is emperor " + i));
+        }
+    }
+    
+    private MultiEmperor() {
+        
+    }
+    
+    private MultiEmperor(String name) {
+        mNameList.add(name);
+    }
+}

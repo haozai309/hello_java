@@ -1,0 +1,10 @@
+package com.pattern.factory;
+
+public class NvWa {
+
+    public static void main(String args[]) {
+        AbstractHumanFactory yinYangLu = new HumanFactory();
+        
+        System.out.println("The white people.");
+    }
+}

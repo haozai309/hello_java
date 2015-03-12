@@ -1,0 +1,14 @@
+package com.pattern.singleInstance;
+
+public class Emperor {
+
+    private static final Emperor sEmperor = new Emperor();
+
+    private Emperor() {
+
+    }
+
+    public Emperor getInstance() {
+        return sEmperor;
+    }
+}

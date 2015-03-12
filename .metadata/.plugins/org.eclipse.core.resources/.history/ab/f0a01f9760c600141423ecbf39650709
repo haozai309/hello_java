@@ -1,0 +1,7 @@
+package com.pattern.abstractFactory;
+
+import com.pattern.factory.YellowHuman;
+
+public class FemaleYellowHuman extends YellowHuman {
+
+}
