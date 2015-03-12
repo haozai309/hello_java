@@ -18,7 +18,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Override
     public void login(String user, String password) {
-        System.out.println(this.mName + " login using name " + user);
+        System.out.println("login: user " + user + ", password " + password);
 
     }
 
