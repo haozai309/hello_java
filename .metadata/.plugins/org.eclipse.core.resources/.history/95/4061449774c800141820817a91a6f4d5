@@ -1,0 +1,19 @@
+package com.patter.creater;
+
+import java.util.ArrayList;
+
+public class BmwBuilder extends CarBuilder {
+
+    @Override
+    public void setSequence(ArrayList<String> sequence) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public CarModel getCarModel() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+}

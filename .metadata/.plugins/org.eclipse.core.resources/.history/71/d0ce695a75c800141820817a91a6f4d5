@@ -21,10 +21,5 @@ public class Client {
         benzBuilder.setSequence(sequence);
         BenzModel newBenz = (BenzModel) benzBuilder.getCarModel();
         newBenz.run();
-
-        BmwBuilder bmwBuilder = new BmwBuilder();
-        bmwBuilder.setSequence(sequence);
-        BmwModel bmwModel = (BmwModel) bmwBuilder.getCarModel();
-        bmwModel.run();
     }
 }

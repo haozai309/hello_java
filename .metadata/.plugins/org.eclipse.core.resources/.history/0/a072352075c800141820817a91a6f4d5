@@ -16,15 +16,10 @@ public class Client {
         benz.setSequence(sequence);
         benz.run();
 
-        System.out.println("\n---- update to use builder ----");
+        System.out.println("---- update to use builder ----");
         BenzBuilder benzBuilder = new BenzBuilder();
         benzBuilder.setSequence(sequence);
         BenzModel newBenz = (BenzModel) benzBuilder.getCarModel();
         newBenz.run();
-
-        BmwBuilder bmwBuilder = new BmwBuilder();
-        bmwBuilder.setSequence(sequence);
-        BmwModel bmwModel = (BmwModel) bmwBuilder.getCarModel();
-        bmwModel.run();
     }
 }
