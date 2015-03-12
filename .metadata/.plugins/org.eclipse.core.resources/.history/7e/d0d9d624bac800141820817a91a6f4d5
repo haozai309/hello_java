@@ -1,0 +1,23 @@
+package com.pattern.proxy;
+
+public class GamePlayer implements IGamePlayer {
+
+    @Override
+    public void login(String user, String password) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void killBoss() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void upgrade() {
+        // TODO Auto-generated method stub
+
+    }
+
+}
