@@ -30,7 +30,9 @@ public class Client {
         System.out.println("\n---- update to use director ----");
         Director director = new Director();
         director.getABenzModel().run();
+
         director.getCBmwModel().run();
+
         director.getBBenzModel().run();
     }
 }

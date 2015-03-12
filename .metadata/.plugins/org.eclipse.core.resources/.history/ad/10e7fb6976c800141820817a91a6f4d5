@@ -1,0 +1,21 @@
+package com.patter.creater;
+
+import java.util.ArrayList;
+
+public class Director {
+
+    private ArrayList<String> mSequence = new ArrayList<String>();
+
+    private BenzBuilder benzBuilder = new BenzBuilder();
+
+    private BmwBuilder bmwBuilder = new BmwBuilder();
+
+    public BenzModel getABenzModel() {
+        this.mSequence.clear();
+        this.mSequence.add("start");
+        this.mSequence.add("stop");
+        this.benzBuilder.setSequence(this.mSequence);
+
+        return (BenzModel) benzBuilder.getCarModel();
+    }
+}
