@@ -1,7 +1,0 @@
-package com.pattern.factory;
-
-public class NvWa {
-    public static void main(String args[]) {
-
-    }
-}

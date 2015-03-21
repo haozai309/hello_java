@@ -1,8 +1,0 @@
-package com.pattern.factory;
-
-public interface Human {
-
-    public int getColor();
-    
-    pubcli void talk();
-}

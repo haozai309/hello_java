@@ -1,0 +1,60 @@
+package com.pattern.Template;
+
+public class Mail {
+
+    private String mReceiver;
+
+    private String mSubject;
+
+    private String mAppellation;
+
+    private String mContext;
+
+    private String mTail;
+
+    public Mail(AdvTemplate advTemplate) {
+        this.mContext = advTemplate.getAdvContext();
+        this.mSubject = advTemplate.getAdvSubject();
+    }
+
+    public String getReceiver() {
+        return mReceiver;
+    }
+
+    public void setReceiver(String mReceiver) {
+        this.mReceiver = mReceiver;
+    }
+
+    public String getSubject() {
+        return mSubject;
+    }
+
+    public void setSubject(String mSubject) {
+        this.mSubject = mSubject;
+    }
+
+    public String getAppellation() {
+        return mAppellation;
+    }
+
+    public void setAppellation(String mAppellation) {
+        this.mAppellation = mAppellation;
+    }
+
+    public String getContext() {
+        return mContext;
+    }
+
+    public void setContext(String mContext) {
+        this.mContext = mContext;
+    }
+
+    public String getTail() {
+        return mTail;
+    }
+
+    public void setTail(String mTail) {
+        this.mTail = mTail;
+    }
+
+}
