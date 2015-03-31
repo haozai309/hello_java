@@ -2,18 +2,15 @@ package com.pattern.mediator;
 
 import java.util.Random;
 
-public class Sale {
+public class Sale extends AbstractColleague {
+
+    public Sale(AbstractMediator mediator) {
+        super(mediator);
+    }
 
     public void sellIbmComputer(int number) {
-        Stock stock = new Stock();
-
-        Purchase purchase = new Purchase();
-        if (stock.getStockNumber() < number) {
-            purchase.buyIbmComputer(number);
-        }
-
+        mMediator.execute("sale.sell", number);
         System.out.println("sell IBM computer " + number);
-        stock.decrease(number);
     }
 
     public int getSalesStatus() {
@@ -24,7 +21,6 @@ public class Sale {
     }
 
     public void offSale() {
-        Stock stock = new Stock();
-        System.out.println("Off sale to sell computer " + stock.getStockNumber());
+        mMediator.execute("sale.offsail");
     }
 }

@@ -1,6 +1,10 @@
 package com.pattern.mediator;
 
-public class Stock {
+public class Stock extends AbstractColleague {
+
+    public Stock(AbstractMediator mediator) {
+        super(mediator);
+    }
 
     private static int COMPUTER_NUMBER = 100;
 
@@ -19,10 +23,7 @@ public class Stock {
     }
 
     public void clearStock() {
-        Purchase purchase = new Purchase();
-        Sale sale = new Sale();
-        System.out.println("Clear " + COMPUTER_NUMBER);
-        sale.offSale();
-        purchase.refuseBuyIbm();
+        System.out.println("Clear stock " + COMPUTER_NUMBER);
+        mMediator.execute("stock.clear");
     }
 }

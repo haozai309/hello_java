@@ -1,20 +1,13 @@
 package com.pattern.mediator;
 
-public class Purchase {
+public class Purchase extends AbstractColleague {
+
+    public Purchase(AbstractMediator mediator) {
+        super(mediator);
+    }
 
     public void buyIbmComputer(int number) {
-        Stock stock = new Stock();
-        Sale sale = new Sale();
-
-        int salesStatus = sale.getSalesStatus();
-        if (salesStatus > 80) {
-            System.out.println("Buy IBM computer " + number);
-            stock.increase(number);
-        } else {
-            int buyNumber = number / 2;
-            System.out.println("Buy IBM computer " + buyNumber);
-            stock.increase(buyNumber);
-        }
+        mMediator.execute("purchase.buy", number);
     }
 
     public void refuseBuyIbm() {
