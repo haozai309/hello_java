@@ -11,5 +11,11 @@ public class Father {
         SchoolReport sugarReport = new SugarFouthGradeSchoolReport();
         sugarReport.report();
         sugarReport.sign("Chang san");
+
+        System.out.println("----- reviesed version based on last version -----");
+        schoolReport = new HighScoreDecorator(schoolReport);
+        schoolReport = new SortDecorator(schoolReport);
+        schoolReport.report();
+        schoolReport.sign("Chang san");
     }
 }
