@@ -12,27 +12,15 @@ public class Client {
             arrayList.add(new Women(rand.nextInt(4), "want to go shopping"));
         }
 
-        IHandler father = new Father();
-        IHandler husband = new Husband();
-        IHandler son = new Son();
+        Handler father = new Father();
+        Handler husband = new Husband();
+        Handler son = new Son();
+
+        father.setNext(husband);
+        husband.setNext(son);
+
         for (IWomen women : arrayList) {
-            switch (women.getType()) {
-            case 1:
-                System.out.println("----- Father -----");
-                father.handleMessage(women);
-                break;
-            case 2:
-                System.out.println("----- Husband -----");
-                husband.handleMessage(women);
-                break;
-            case 3:
-                System.out.println("----- Son -----");
-                son.handleMessage(women);
-                break;
-            default:
-                System.out.println("----- do nothing. -----");
-                break;
-            }
+            father.handleMessage(women);
         }
     }
 

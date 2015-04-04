@@ -8,6 +8,22 @@ public class Women implements IWomen {
     public Women(int type, String request) {
         mType = type;
         mRequest = request;
+        switch (type) {
+        case 1:
+            mRequest = "Daughter's request " + request;
+            break;
+
+        case 2:
+            mRequest = "Wife's request " + request;
+            break;
+
+        case 3:
+            mRequest = "Mother's request " + request;
+            break;
+
+        default:
+            break;
+        }
     }
 
     @Override

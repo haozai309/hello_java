@@ -1,11 +1,16 @@
 package com.pattern.chain;
 
-public class Son implements IHandler {
+public class Son extends Handler {
+
+    public Son() {
+        super(Handler.SON_LEVEL_REQUEST);
+    }
 
     @Override
-    public void handleMessage(IWomen women) {
-        System.out.println("Mother's request is " + women.getRequest());
-        System.out.println("Son's replay is OK.");
+    protected void response(IWomen women) {
+        System.out.println("----- Mother give request to son -----");
+        System.out.println(women.getRequest());
+        System.out.println("Son's reply is OK.");
     }
 
 }
