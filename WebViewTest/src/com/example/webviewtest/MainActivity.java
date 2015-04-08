@@ -20,6 +20,8 @@ public class MainActivity extends ActionBarActivity {
 
         mWebView = (WebView) findViewById(R.id.web_view);
         mWebView.getSettings().setJavaScriptEnabled(true);
+
+        // When open a new link, use webview instead of system web browser
         mWebView.setWebViewClient(new WebViewClient() {
 
             @Override
