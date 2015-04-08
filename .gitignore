@@ -1,4 +1,12 @@
 
+# exclude android files
+bin/
+gen/
+*.apk
+*.dex
+
+# android library project
+appcompat_v7
 
 # exclude eclipse settings
 .metadata
