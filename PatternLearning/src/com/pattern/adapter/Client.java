@@ -9,8 +9,17 @@ public class Client {
             youngGirl.getMobileNumber();
         }
 
+//        System.out.println("--- outer user info ---");
+//        youngGirl = new OuterUserInfo();
+//        for (int i = 0; i < 6; i++) {
+//            System.out.println(youngGirl.getMobileNumber());
+//        }
+
         System.out.println("--- outer user info ---");
-        youngGirl = new OuterUserInfo();
+        IOuterUserBaseInfo baseInfo = new OuterUserBaseInfo();
+        IOuterUserHomeInfo homeInfo = new OuterUserHomeInfo();
+        IOuterUserOfficeInfo officeInfo = new OuterUserOfficeInfo();
+        youngGirl = new OuterUserInfo(baseInfo, homeInfo, officeInfo);
         for (int i = 0; i < 6; i++) {
             System.out.println(youngGirl.getMobileNumber());
         }
