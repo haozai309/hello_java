@@ -5,6 +5,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,11 +25,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 
-    public static final int SHOW_RESPONSE = 0;
     private static final String TAG = "NetworkTest/MainActivity";
+    private static final int SHOW_RESPONSE = 0;
+    private static int flag = 1;
 
     private Button mSendRequest;
     private TextView mResponseText;
@@ -31,10 +41,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
         @Override
         public void handleMessage(Message msg) {
-            Log.e(TAG, "msg.what " + msg.what);
             switch (msg.what) {
             case SHOW_RESPONSE:
                 String response = (String) msg.obj;
+                if (response.length() > 30) {
+                    Log.i(TAG, "response " + response.substring(0, 30));
+                }
                 mResponseText.setText(response);
                 break;
             default:
@@ -77,12 +89,21 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     public void onClick(View v) {
         if (v.getId() == R.id.send_request) {
             Log.i(TAG, "press button " + v.getId());
-            sendHttpRequest();
+            String text;
+            if (flag % 2 == 0) {
+                text = "Get web page via HttpURLConnection";
+                sendHttpRequestWithHttpUrlConnection();
+            } else {
+                text = "Get web page via HttpClient";
+                sendRequestWithHttpClient();
+            }
+            Toast.makeText(this, text + flag, Toast.LENGTH_SHORT).show();
+            flag++;
         }
     }
 
-    private void sendHttpRequest() {
-        Log.i(TAG, "sendHttpRequest+");
+    private void sendHttpRequestWithHttpUrlConnection() {
+        Log.i(TAG, "sendHttpRequestWithHttpUrlConnection+");
         new Thread(new Runnable() {
 
             @Override
@@ -95,12 +116,8 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                     connection.setConnectTimeout(8000);
                     connection.setReadTimeout(8000);
 
-                    Log.i(TAG, "connection is " + connection);
-
                     InputStream input = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-                    Log.i(TAG, "response is " + reader.toString());
 
                     StringBuilder response = new StringBuilder();
                     String line;
@@ -111,12 +128,42 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                     message.what = SHOW_RESPONSE;
                     message.obj = response.toString();
                     mHandler.sendMessage(message);
+                    Log.i(TAG, "sendMessage");
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     if (connection != null) {
                         connection.disconnect();
                     }
+                }
+            }
+        }).start();
+    }
+
+    private void sendRequestWithHttpClient() {
+        Log.i(TAG, "sendRequestWithHttpClient");
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpGet httpGet = new HttpGet("http://www.youku.com");
+                    HttpResponse httpResponse = httpClient.execute(httpGet);
+
+                    Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
+
+                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                        HttpEntity entity = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity, "utf-8");
+                        Message message = new Message();
+                        message.obj = response.toString();
+                        mHandler.sendMessage(message);
+                        Log.i(TAG, "sendMessage");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }).start();
