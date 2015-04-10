@@ -3,6 +3,7 @@ package com.web.networktest;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -12,6 +13,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -31,10 +34,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
     private static final String TAG = "NetworkTest/MainActivity";
     private static final int SHOW_RESPONSE = 0;
-    private static int flag = 1;
+    private static int flag = 0;
 
     private Button mSendRequest;
     private TextView mResponseText;
+    private String mPrefixText;
+
+    private static final String HTTP_LINK = "http://192.168.1.105/~haozai309/get_data.xml";
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -44,10 +50,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             switch (msg.what) {
             case SHOW_RESPONSE:
                 String response = (String) msg.obj;
-                if (response.length() > 30) {
-                    Log.i(TAG, "response " + response.substring(0, 30));
+                if (response.length() > 100) {
+                    Log.i(TAG, "response " + response.substring(0, 100));
+                } else {
+                    Log.i(TAG, "response " + response);
                 }
-                mResponseText.setText(response);
+                mResponseText.setText(mPrefixText + "\n" + response);
                 break;
             default:
                 Log.e(TAG, "default flow");
@@ -88,16 +96,17 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.send_request) {
-            Log.i(TAG, "press button " + v.getId());
-            String text;
-            if (flag % 2 == 0) {
-                text = "Get web page via HttpURLConnection";
+            if (flag % 3 == 0) {
+                mPrefixText = "Get web page via HttpURLConnection";
                 sendHttpRequestWithHttpUrlConnection();
-            } else {
-                text = "Get web page via HttpClient";
+            } else if (flag % 3 == 1) {
+                mPrefixText = "Get web page via HttpClient";
                 sendRequestWithHttpClient();
+            } else {
+                mPrefixText = "Get web page and pull parse";
+                sendRequestAndParse();
             }
-            Toast.makeText(this, text + flag, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, mPrefixText + " " + flag, Toast.LENGTH_SHORT).show();
             flag++;
         }
     }
@@ -110,7 +119,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             public void run() {
                 HttpURLConnection connection = null;
                 try {
-                    URL url = new URL("http://www.baidu.com");
+                    URL url = new URL(HTTP_LINK);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
@@ -148,7 +157,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             public void run() {
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpGet httpGet = new HttpGet("http://www.youku.com");
+                    HttpGet httpGet = new HttpGet(HTTP_LINK);
                     HttpResponse httpResponse = httpClient.execute(httpGet);
 
                     Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
@@ -167,5 +176,73 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                 }
             }
         }).start();
+    }
+
+    private void sendRequestAndParse() {
+        Log.i(TAG, "sendRequestAndParse");
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpGet httpGet = new HttpGet(HTTP_LINK);
+                    HttpResponse httpResponse = httpClient.execute(httpGet);
+
+                    Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
+
+                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                        HttpEntity entity = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity, "utf-8");
+                        Message message = new Message();
+                        message.obj = response.toString();
+                        mHandler.sendMessage(message);
+                        Log.i(TAG, "sendMessage");
+
+                        parseXMLWithPull(response);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void parseXMLWithPull(String xmlData) {
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser xmlPullParser = factory.newPullParser();
+            xmlPullParser.setInput(new StringReader(xmlData));
+            int eventType = xmlPullParser.getEventType();
+            String id = "";
+            String name = "";
+            String version = "";
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                String nodeName = xmlPullParser.getName();
+                // Log.i(TAG, "eventType is " + eventType);
+                switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    if ("id".equals(nodeName)) {
+                        id = xmlPullParser.nextText();
+                    } else if ("name".equals(nodeName)) {
+                        name = xmlPullParser.nextText();
+                    } else if ("version".equals(nodeName)) {
+                        version = xmlPullParser.nextText();
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    if ("app".equals(nodeName)) {
+                        Log.i(TAG, "id is " + id);
+                        Log.i(TAG, "name is " + name);
+                        Log.i(TAG, "version is " + version);
+                    }
+                default:
+                    break;
+                }
+                eventType = xmlPullParser.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
