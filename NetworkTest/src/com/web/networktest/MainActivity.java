@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -21,6 +22,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -60,12 +64,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             case SHOW_RESPONSE_XML:
             case SHOW_RESPONSE_JSON:
                 String response = (String) msg.obj;
-
-                if (response.length() > 100) {
-                    Log.i(TAG, "response " + response.substring(0, 100));
-                } else {
-                    Log.i(TAG, "response " + response);
-                }
+                Log.i(TAG, "response " + response);
                 mResponseText.setText(mPrefixText + "\n" + response);
                 break;
             default:
@@ -107,15 +106,18 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.send_request) {
-            if (flag % 3 == 0) {
+            if (flag % 4 == 0) {
                 mPrefixText = "Get web page via HttpURLConnection";
                 sendHttpRequestWithHttpUrlConnection(SHOW_RESPONSE_XML);
-            } else if (flag % 3 == 1) {
+            } else if (flag % 4 == 1) {
                 mPrefixText = "Get web page via HttpClient";
-                sendRequestWithHttpClient();
-            } else {
-                mPrefixText = "Get Json data and parse";
+                sendRequestWithHttpClient(SHOW_RESPONSE_XML);
+            } else if (flag % 4 == 2) {
+                mPrefixText = "Get Json data via HttpURLConnection";
                 sendHttpRequestWithHttpUrlConnection(SHOW_RESPONSE_JSON);
+            } else {
+                mPrefixText = "Get Json data via HttpClient";
+                sendRequestWithHttpClient(SHOW_RESPONSE_JSON);
             }
             Toast.makeText(this, mPrefixText + " " + flag, Toast.LENGTH_SHORT).show();
             flag++;
@@ -175,15 +177,23 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         }).start();
     }
 
-    private void sendRequestWithHttpClient() {
+    private void sendRequestWithHttpClient(final int type) {
         Log.i(TAG, "sendRequestWithHttpClient");
+
+        final String link;
+        if (type == SHOW_RESPONSE_XML) {
+            link = XML_LINK;
+        } else {
+            link = JSON_LINK;
+        }
+
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpGet httpGet = new HttpGet(XML_LINK);
+                    HttpGet httpGet = new HttpGet(link);
                     HttpResponse httpResponse = httpClient.execute(httpGet);
 
                     Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
@@ -192,12 +202,18 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                         HttpEntity entity = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity, "utf-8");
                         Message message = new Message();
+                        message.what = type;
                         message.obj = response.toString();
                         mHandler.sendMessage(message);
                         Log.i(TAG, "sendMessage");
 
-                        // parse the xml data via SAX way
-                        parseXMLWithSAX(response.toString());
+                        if (type == SHOW_RESPONSE_XML) {
+                            // parse the xml data via SAX way
+                            parseXMLWithSAX(response.toString());
+                        } else {
+                            parseJsonWithGson(response.toString());
+                        }
+
                     }
 
                 } catch (Exception e) {
@@ -258,6 +274,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     }
 
     private void parseJsonWithJsonObject(String jsonData) {
+        Log.i(TAG, "parseJsonWithJsonObject");
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -271,6 +288,18 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void parseJsonWithGson(String jsonData) {
+        Log.i(TAG, "parseJsonWithGson");
+        Gson gson = new Gson();
+        List<App> appList = gson.fromJson(jsonData, new TypeToken<List<App>>() {
+        }.getType());
+        for (App app : appList) {
+            Log.i(TAG, "[Json] id is " + app.getId());
+            Log.i(TAG, "[Json] name is " + app.getName());
+            Log.i(TAG, "[Json] version is " + app.getVersion());
         }
     }
 }
