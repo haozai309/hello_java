@@ -7,12 +7,16 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -50,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             switch (msg.what) {
             case SHOW_RESPONSE:
                 String response = (String) msg.obj;
+
                 if (response.length() > 100) {
                     Log.i(TAG, "response " + response.substring(0, 100));
                 } else {
@@ -96,15 +101,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.send_request) {
-            if (flag % 3 == 0) {
+            if (flag % 2 == 0) {
                 mPrefixText = "Get web page via HttpURLConnection";
                 sendHttpRequestWithHttpUrlConnection();
-            } else if (flag % 3 == 1) {
+            } else {
                 mPrefixText = "Get web page via HttpClient";
                 sendRequestWithHttpClient();
-            } else {
-                mPrefixText = "Get web page and pull parse";
-                sendRequestAndParse();
             }
             Toast.makeText(this, mPrefixText + " " + flag, Toast.LENGTH_SHORT).show();
             flag++;
@@ -138,6 +140,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                     message.obj = response.toString();
                     mHandler.sendMessage(message);
                     Log.i(TAG, "sendMessage");
+
+                    // parse the xml data
+                    parseXMLWithPull(response.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -169,38 +174,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                         message.obj = response.toString();
                         mHandler.sendMessage(message);
                         Log.i(TAG, "sendMessage");
+
+                        parseXMLWithSAX(response.toString());
                     }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    private void sendRequestAndParse() {
-        Log.i(TAG, "sendRequestAndParse");
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    HttpClient httpClient = new DefaultHttpClient();
-                    HttpGet httpGet = new HttpGet(HTTP_LINK);
-                    HttpResponse httpResponse = httpClient.execute(httpGet);
-
-                    Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
-
-                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
-                        HttpEntity entity = httpResponse.getEntity();
-                        String response = EntityUtils.toString(entity, "utf-8");
-                        Message message = new Message();
-                        message.obj = response.toString();
-                        mHandler.sendMessage(message);
-                        Log.i(TAG, "sendMessage");
-
-                        parseXMLWithPull(response);
-                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -241,6 +218,18 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                 }
                 eventType = xmlPullParser.next();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseXMLWithSAX(String xmlData) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            XMLReader xmlReader = factory.newSAXParser().getXMLReader();
+            ContentHandler handler = new ContentHandler();
+            xmlReader.setContentHandler(handler);
+            xmlReader.parse(new InputSource(new StringReader(xmlData)));
         } catch (Exception e) {
             e.printStackTrace();
         }
