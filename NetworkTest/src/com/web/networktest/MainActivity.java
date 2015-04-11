@@ -15,6 +15,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
@@ -37,14 +39,17 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 
     private static final String TAG = "NetworkTest/MainActivity";
-    private static final int SHOW_RESPONSE = 0;
+    private static final String PREFIX_LINK = "http://192.168.1.104/~haozhang/";
+    private static final String XML_LINK = PREFIX_LINK + "get_data.xml";
+    private static final String JSON_LINK = PREFIX_LINK + "get_data.json";
+
+    private static final int SHOW_RESPONSE_XML = 0;
+    private static final int SHOW_RESPONSE_JSON = 1;
     private static int flag = 0;
 
     private Button mSendRequest;
     private TextView mResponseText;
     private String mPrefixText;
-
-    private static final String HTTP_LINK = "http://192.168.1.105/~haozai309/get_data.xml";
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -52,7 +57,8 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-            case SHOW_RESPONSE:
+            case SHOW_RESPONSE_XML:
+            case SHOW_RESPONSE_JSON:
                 String response = (String) msg.obj;
 
                 if (response.length() > 100) {
@@ -101,27 +107,37 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.send_request) {
-            if (flag % 2 == 0) {
+            if (flag % 3 == 0) {
                 mPrefixText = "Get web page via HttpURLConnection";
-                sendHttpRequestWithHttpUrlConnection();
-            } else {
+                sendHttpRequestWithHttpUrlConnection(SHOW_RESPONSE_XML);
+            } else if (flag % 3 == 1) {
                 mPrefixText = "Get web page via HttpClient";
                 sendRequestWithHttpClient();
+            } else {
+                mPrefixText = "Get Json data and parse";
+                sendHttpRequestWithHttpUrlConnection(SHOW_RESPONSE_JSON);
             }
             Toast.makeText(this, mPrefixText + " " + flag, Toast.LENGTH_SHORT).show();
             flag++;
         }
     }
 
-    private void sendHttpRequestWithHttpUrlConnection() {
-        Log.i(TAG, "sendHttpRequestWithHttpUrlConnection+");
+    private void sendHttpRequestWithHttpUrlConnection(final int type) {
+        Log.i(TAG, "sendHttpRequestWithHttpUrlConnection");
+        final String link;
+        if (type == SHOW_RESPONSE_XML) {
+            link = XML_LINK;
+        } else {
+            link = JSON_LINK;
+        }
+
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 HttpURLConnection connection = null;
                 try {
-                    URL url = new URL(HTTP_LINK);
+                    URL url = new URL(link);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
@@ -136,13 +152,18 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                         response.append(line);
                     }
                     Message message = new Message();
-                    message.what = SHOW_RESPONSE;
+                    message.what = type;
                     message.obj = response.toString();
                     mHandler.sendMessage(message);
                     Log.i(TAG, "sendMessage");
 
-                    // parse the xml data
-                    parseXMLWithPull(response.toString());
+                    if (type == SHOW_RESPONSE_XML) {
+                        // parse the xml data via Pull way
+                        parseXMLWithPull(response.toString());
+                    } else {
+                        parseJsonWithJsonObject(response.toString());
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -162,7 +183,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             public void run() {
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpGet httpGet = new HttpGet(HTTP_LINK);
+                    HttpGet httpGet = new HttpGet(XML_LINK);
                     HttpResponse httpResponse = httpClient.execute(httpGet);
 
                     Log.i(TAG, "status is " + httpResponse.getStatusLine().getStatusCode());
@@ -175,6 +196,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                         mHandler.sendMessage(message);
                         Log.i(TAG, "sendMessage");
 
+                        // parse the xml data via SAX way
                         parseXMLWithSAX(response.toString());
                     }
 
@@ -230,6 +252,23 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             ContentHandler handler = new ContentHandler();
             xmlReader.setContentHandler(handler);
             xmlReader.parse(new InputSource(new StringReader(xmlData)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseJsonWithJsonObject(String jsonData) {
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String id = jsonObject.getString("id");
+                String name = jsonObject.getString("name");
+                String version = jsonObject.getString("version");
+                Log.i(TAG, "[Json] id is " + id);
+                Log.i(TAG, "[Json] name is " + name);
+                Log.i(TAG, "[Json] version is " + version);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
