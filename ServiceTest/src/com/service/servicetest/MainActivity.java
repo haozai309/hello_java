@@ -1,8 +1,12 @@
 package com.service.servicetest;
 
 import android.support.v7.app.ActionBarActivity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,8 +15,28 @@ import android.widget.Button;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 
+    protected static final String TAG = "ServiceTest/MainActivity";
     private Button mStartService;
     private Button mStopService;
+    private Button mBindService;
+    private Button mUnbindService;
+    private MyService.DownloadBinder mDownloadBinder;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "onServiceConnected");
+            mDownloadBinder = (MyService.DownloadBinder) service;
+            mDownloadBinder.startDownload();
+            mDownloadBinder.getProgress();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "onServiceDisconnected");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,8 +45,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
         mStartService = (Button) findViewById(R.id.start_service);
         mStopService = (Button) findViewById(R.id.stop_service);
+        mBindService = (Button) findViewById(R.id.bind_service);
+        mUnbindService = (Button) findViewById(R.id.unbind_service);
         mStartService.setOnClickListener(this);
         mStopService.setOnClickListener(this);
+        mBindService.setOnClickListener(this);
+        mUnbindService.setOnClickListener(this);
     }
 
     @Override
@@ -54,6 +82,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         case R.id.stop_service:
             Intent stopIntent = new Intent(this, MyService.class);
             stopService(stopIntent);
+            break;
+        case R.id.bind_service:
+            Intent binIntent = new Intent(this, MyService.class);
+            bindService(binIntent, mServiceConnection, BIND_AUTO_CREATE);
+            break;
+        case R.id.unbind_service:
+            unbindService(mServiceConnection);
             break;
         default:
             break;
