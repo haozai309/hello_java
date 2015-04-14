@@ -1,10 +1,14 @@
 package com.media.notificationtest;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,13 +56,20 @@ public class MainActivity extends Activity implements OnClickListener {
                 getSystemService(NOTIFICATION_SERVICE);
             Intent intent = new Intent(this, NotificationActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            Uri soundUri = Uri.fromFile(new File("/system/media/audio/ringtones/Zeta.ogg"));
+
             Notification notification = new Notification.Builder(this)
                     .setContentTitle("Notification comes")
                     .setContentText("Content text")
                     .setSmallIcon(R.drawable.ic_launcher)
+                    .setSound(soundUri)
+                    .setVibrate(new long[]{0, 1000, 1000, 1000})
+                    .setLights(Color.GREEN, 1000, 1000)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
                     .build();
+            notification.flags |= Notification.FLAG_SHOW_LIGHTS;
             notificationManager.notify(1, notification);
             break;
 
