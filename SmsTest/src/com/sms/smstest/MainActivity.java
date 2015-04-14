@@ -6,10 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -21,6 +26,10 @@ public class MainActivity extends Activity {
     private IntentFilter mIntentFilter;
     private MessageReciever mMessageReceiver;
 
+    private EditText mTo;
+    private EditText mMsgInput;
+    private Button mSendMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +37,21 @@ public class MainActivity extends Activity {
 
         mSender = (TextView) findViewById(R.id.sender);
         mContent = (TextView) findViewById(R.id.content);
+        mTo = (EditText) findViewById(R.id.to);
+        mMsgInput = (EditText) findViewById(R.id.msg_input);
+        mSendMessage = (Button) findViewById(R.id.send);
+        mSendMessage.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (mTo.getText().toString().length() > 0
+                        && mMsgInput.getText().toString().length() > 0) {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(mTo.getText().toString(), null, mMsgInput.getText()
+                            .toString(), null, null);
+                }
+            }
+        });
 
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
