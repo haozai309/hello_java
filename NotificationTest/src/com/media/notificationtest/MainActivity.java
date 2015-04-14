@@ -55,8 +55,9 @@ public class MainActivity extends Activity implements OnClickListener {
             Notification notification = new Notification.Builder(this)
                     .setContentTitle("Notification comes")
                     .setContentText("Content text")
-                    .setContentIntent(pendingIntent)
                     .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
                     .build();
             notificationManager.notify(1, notification);
             break;
