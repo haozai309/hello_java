@@ -55,6 +55,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         mBindService.setOnClickListener(this);
         mUnbindService.setOnClickListener(this);
         mStartIntentService.setOnClickListener(this);
+
+        Intent intent = new Intent(this, LongRunningService.class);
+        startService(intent);
     }
 
     @Override
