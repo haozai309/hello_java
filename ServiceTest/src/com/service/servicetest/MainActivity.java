@@ -20,6 +20,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     private Button mStopService;
     private Button mBindService;
     private Button mUnbindService;
+    private Button mStartIntentService;
     private MyService.DownloadBinder mDownloadBinder;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -47,10 +48,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         mStopService = (Button) findViewById(R.id.stop_service);
         mBindService = (Button) findViewById(R.id.bind_service);
         mUnbindService = (Button) findViewById(R.id.unbind_service);
+        mStartIntentService = (Button) findViewById(R.id.start_intent_service);
+
         mStartService.setOnClickListener(this);
         mStopService.setOnClickListener(this);
         mBindService.setOnClickListener(this);
         mUnbindService.setOnClickListener(this);
+        mStartIntentService.setOnClickListener(this);
     }
 
     @Override
@@ -89,6 +93,11 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             break;
         case R.id.unbind_service:
             unbindService(mServiceConnection);
+            break;
+        case R.id.start_intent_service:
+            Log.i(TAG, "Thread id is " + Thread.currentThread().getId());
+            Intent intent = new Intent(this, MyIntentService.class);
+            startService(intent);
             break;
         default:
             break;

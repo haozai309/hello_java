@@ -8,5 +8,6 @@
     <string name="stop_service">Stop service</string>
     <string name="bind_service">Bind service</string>
     <string name="unbind_service">Unbind service</string>
+    <string name="start_intent_service">Start IntentService</string>
 
 </resources>
