@@ -27,10 +27,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private static final int TAKE_PHOTO = 1;
     private static final int CROP_PHOTO = 2;
+    private static final int FROM_ALBUM = 3;
 
+    private ImageView mPicture;
     private Button mTakePhoto;
     private Button mCropPhoto;
-    private ImageView mPicture;
+    private Button mChooseFromAlbum;
+
     private Uri mImageUri;
     private Uri mCropImageUri;
 
@@ -42,8 +45,10 @@ public class MainActivity extends Activity implements OnClickListener {
         mPicture = (ImageView) findViewById(R.id.picture);
         mTakePhoto = (Button) findViewById(R.id.take_photo);
         mCropPhoto = (Button) findViewById(R.id.crop_photo);
+        mChooseFromAlbum = (Button) findViewById(R.id.choose_from_album);
         mTakePhoto.setOnClickListener(this);
         mCropPhoto.setOnClickListener(this);
+        mChooseFromAlbum.setOnClickListener(this);
 
         mImageUri = resetFile("output_image.jpg");
         mCropImageUri = resetFile("output_cropped_image.jpg");
@@ -70,7 +75,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "requestCode is " + requestCode + ", resultCode is " + resultCode);
+        Log.i(TAG, "requestCode is " + requestCode + ", resultCode is " + resultCode + ", intent "
+                + data);
         switch (requestCode) {
         case TAKE_PHOTO:
             if (resultCode == RESULT_OK) {
@@ -80,8 +86,14 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
         case CROP_PHOTO:
             if (resultCode == RESULT_OK) {
-                Log.i(TAG, "Crop the image and save.");
+                Log.i(TAG, "Crop image and save.");
                 updateImage(mCropImageUri);
+            }
+            break;
+        case FROM_ALBUM:
+            if (resultCode == RESULT_OK) {
+                Log.i(TAG, "Choose a picture from album and display.");
+                updateImage(data.getData());
             }
             break;
         default:
@@ -99,6 +111,9 @@ public class MainActivity extends Activity implements OnClickListener {
         case R.id.crop_photo:
             doCropPhoto();
             break;
+        case R.id.choose_from_album:
+            chooseFromAlbum();
+            break;
         default:
             break;
         }
@@ -115,6 +130,17 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void chooseFromAlbum() {
+        try {
+            Intent intent = new Intent("android.intent.action.GET_CONTENT");
+            intent.setType("image/*");
+            startActivityForResult(intent, FROM_ALBUM);
+        } catch (ActivityNotFoundException anfe) {
+            String errorMessage = "Your device doesn't support the crop action!";
+            Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /*
      * Uri in setDataAndType and putExtra(MediaStore.EXTRA_OUTPUT must be different.
      * http://www.ciiycode.com/0zHzmejgWjgq/android-43-crop-gallery-resultcode-cancel
@@ -124,7 +150,6 @@ public class MainActivity extends Activity implements OnClickListener {
             Intent intent = new Intent("com.android.camera.action.CROP");
             intent.setDataAndType(mImageUri, "image/*");
             intent.putExtra("scale", true);
-            intent.putExtra("return-data", true);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, mCropImageUri);
             startActivityForResult(intent, CROP_PHOTO);
         } catch (ActivityNotFoundException anfe) {
