@@ -1,6 +1,7 @@
 package com.sms.smstest;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -29,6 +31,9 @@ public class MainActivity extends Activity {
     private EditText mTo;
     private EditText mMsgInput;
     private Button mSendMessage;
+
+    private IntentFilter mSendFilter;
+    private SendStatusReceiver mSendStatusReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +51,13 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (mTo.getText().toString().length() > 0
                         && mMsgInput.getText().toString().length() > 0) {
+                    mMsgInput.setText("");
+                    Intent intent = new Intent("SENT_SMS_ACTION");
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0,
+                            intent, 0);
                     SmsManager smsManager = SmsManager.getDefault();
                     smsManager.sendTextMessage(mTo.getText().toString(), null, mMsgInput.getText()
-                            .toString(), null, null);
+                            .toString(), pendingIntent, null);
                 }
             }
         });
@@ -58,6 +67,11 @@ public class MainActivity extends Activity {
         mIntentFilter.setPriority(100);
         mMessageReceiver = new MessageReciever();
         registerReceiver(mMessageReceiver, mIntentFilter);
+
+        mSendFilter = new IntentFilter();
+        mSendFilter.addAction("SENT_SMS_ACTION");
+        mSendStatusReceiver = new SendStatusReceiver();
+        registerReceiver(mSendStatusReceiver, mSendFilter);
     }
 
     @Override
@@ -82,6 +96,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(mMessageReceiver);
+        unregisterReceiver(mSendStatusReceiver);
         super.onDestroy();
     }
 
@@ -110,5 +125,18 @@ public class MainActivity extends Activity {
             // filter this message by stop this broadcast
             abortBroadcast();
         }
+    }
+
+    class SendStatusReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (getResultCode() == RESULT_OK) {
+                Toast.makeText(context, "Send succeeded", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Send failed.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 }
