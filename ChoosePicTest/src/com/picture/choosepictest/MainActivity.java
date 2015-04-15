@@ -21,7 +21,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
     private static final String TAG = "ChoosePicTest/MainActivity";
 
@@ -39,40 +39,14 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mPicture = (ImageView) findViewById(R.id.picture);
         mTakePhoto = (Button) findViewById(R.id.take_photo);
         mCropPhoto = (Button) findViewById(R.id.crop_photo);
-        mPicture = (ImageView) findViewById(R.id.picture);
+        mTakePhoto.setOnClickListener(this);
+        mCropPhoto.setOnClickListener(this);
 
         mImageUri = resetFile("output_image.jpg");
         mCropImageUri = resetFile("output_cropped_image.jpg");
-
-        mTakePhoto.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-                startActivityForResult(intent, TAKE_PHOTO);
-            }
-        });
-
-        mCropPhoto.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                try {
-                    Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setDataAndType(mImageUri, "image/*");
-                    intent.putExtra("scale", true);
-                    intent.putExtra("return-data", true);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, mCropImageUri);
-                    startActivityForResult(intent, CROP_PHOTO);
-                } catch (ActivityNotFoundException anfe) {
-                    String errorMessage = "Your device doesn't support the crop action!";
-                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     @Override
@@ -116,6 +90,49 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.take_photo:
+            doTakePhoto();
+            break;
+        case R.id.crop_photo:
+            doCropPhoto();
+            break;
+        default:
+            break;
+        }
+    }
+
+    private void doTakePhoto() {
+        try {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+            startActivityForResult(intent, TAKE_PHOTO);
+        } catch (ActivityNotFoundException anfe) {
+            String errorMessage = "Your device doesn't support the crop action!";
+            Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /*
+     * Uri in setDataAndType and putExtra(MediaStore.EXTRA_OUTPUT must be different.
+     * http://www.ciiycode.com/0zHzmejgWjgq/android-43-crop-gallery-resultcode-cancel
+     */
+    private void doCropPhoto() {
+        try {
+            Intent intent = new Intent("com.android.camera.action.CROP");
+            intent.setDataAndType(mImageUri, "image/*");
+            intent.putExtra("scale", true);
+            intent.putExtra("return-data", true);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mCropImageUri);
+            startActivityForResult(intent, CROP_PHOTO);
+        } catch (ActivityNotFoundException anfe) {
+            String errorMessage = "Your device doesn't support the crop action!";
+            Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private Uri resetFile(String name) {
         File outputImage = new File(Environment.getExternalStorageDirectory(), name);
         try {
@@ -131,8 +148,7 @@ public class MainActivity extends Activity {
 
     private void updateImage(Uri uri) {
         try {
-            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(
-                    uri));
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             mPicture.setImageBitmap(bitmap);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
