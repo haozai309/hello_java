@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,11 +15,14 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
+    private static final String TAG = "DatabaseTest/MainActivity";
+
     private Button mCreateDatabase;
     private Button mAddData;
     private Button mUpdateData;
     private Button mDeleteData;
     private Button mQueryData;
+    private Button mReplaceData;
     private TextView mResult;
     private MyDatabaseHelper mDbHelper;
 
@@ -33,6 +37,7 @@ public class MainActivity extends Activity implements OnClickListener {
         mUpdateData = (Button) findViewById(R.id.update_data);
         mDeleteData = (Button) findViewById(R.id.delete_data);
         mQueryData = (Button) findViewById(R.id.query_data);
+        mReplaceData = (Button) findViewById(R.id.replace_data);
         mResult = (TextView) findViewById(R.id.result);
 
         mCreateDatabase.setOnClickListener(this);
@@ -40,6 +45,7 @@ public class MainActivity extends Activity implements OnClickListener {
         mUpdateData.setOnClickListener(this);
         mDeleteData.setOnClickListener(this);
         mQueryData.setOnClickListener(this);
+        mReplaceData.setOnClickListener(this);
     }
 
     @Override
@@ -84,6 +90,9 @@ public class MainActivity extends Activity implements OnClickListener {
             queryData();
             break;
 
+        case R.id.replace_data:
+            replaceData();
+            break;
         default:
             break;
         }
@@ -143,5 +152,34 @@ public class MainActivity extends Activity implements OnClickListener {
             } while (cursor.moveToNext());
         }
         cursor.close();
+    }
+
+    private void replaceData() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete("Book", null, null);
+            Log.i(TAG, "delete table Book");
+            int a = 1;
+            int b = 2;
+            // change to a < b, transaction will fail
+            if (a > b) {
+                throw new NullPointerException();
+            }
+            ContentValues values = new ContentValues();
+            values.put("name", "Game of Thrones");
+            values.put("author", "George Martin");
+            values.put("pages", 720);
+            values.put("price", 20.85);
+            db.insert("Book", null, values);
+            Log.i(TAG, "insert a record to Book");
+            db.setTransactionSuccessful();
+            Log.i(TAG, "setTransactionSuccessful");
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            Log.i(TAG, "endTransaction");
+        }
     }
 }
