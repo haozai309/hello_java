@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="create_database">Create database</string>
     <string name="add_data">Add data</string>
+    <string name="update_data">Update data</string>
 
 </resources>

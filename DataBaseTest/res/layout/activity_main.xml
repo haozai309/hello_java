@@ -21,4 +21,11 @@
         android:text="@string/add_data"
         android:layout_below="@id/create_database" />
 
+    <Button
+        android:id="@+id/update_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/update_data"
+        android:layout_below="@id/add_data" />
+
 </RelativeLayout>
