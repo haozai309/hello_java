@@ -4,16 +4,20 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
+
+    private static final String TAG = "DatabaseTest/MainActivity";
 
     public static final String CREATE_BOOK = "create table Book ("
             + "id integer primary key autoincrement, "
             + "author text, "
             + "price real, "
             + "pages integer, "
-            + "name text)";
+            + "name text, "
+            + "category_id integer)";
 
     public static final String CREATE_CATEGORY = "create table Category ("
             + "id integer primary key autoincrement, "
@@ -36,10 +40,18 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table if exists Book");
-        db.execSQL("drop table if exists Category");
-        onCreate(db);
-        Toast.makeText(mContext, "Update databse", Toast.LENGTH_SHORT).show();
+        // Not add break to always update to latest
+        switch (oldVersion) {
+        case 1:
+            db.execSQL(CREATE_CATEGORY);
+        case 3:
+            Log.i(TAG, "Add a column category_id");
+            db.execSQL("alter table Book add column category_id integer");
+        default:
+            break;
+        }
+        Toast.makeText(mContext, "Update databse " + oldVersion + " -> " + newVersion,
+                Toast.LENGTH_SHORT).show();
     }
 
 }

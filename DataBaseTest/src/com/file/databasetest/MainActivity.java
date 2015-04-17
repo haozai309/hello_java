@@ -31,7 +31,7 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDbHelper = new MyDatabaseHelper(this, "BookStore.db", null, 2);
+        mDbHelper = new MyDatabaseHelper(this, "BookStore.db", null, 4);
         mCreateDatabase = (Button) findViewById(R.id.create_database);
         mAddData = (Button) findViewById(R.id.add_data);
         mUpdateData = (Button) findViewById(R.id.update_data);
