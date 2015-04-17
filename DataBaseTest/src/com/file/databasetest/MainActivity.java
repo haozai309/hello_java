@@ -90,6 +90,10 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void addData() {
+        // db.execSQL("insert into Book (name, author, pages, price) values(?, ?, ?, ?)",
+        // new String[] {"The Da Vinci Code", "Dan Brown", "454", "16.96"});
+        // db.execSQL("insert into Book (name, author, pages, price) values(?, ?, ?, ?)",
+        // new String[] {"The Lost Symbol", "Dan Brown", "510", "19.95"});
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", "The Da Vinci Code");
@@ -109,16 +113,20 @@ public class MainActivity extends Activity implements OnClickListener {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("price", 10.99);
+        // db.execSQL("update Book set price = ? where name = ?", new String[]{"10.99",
+        // "The Da Vinci Code"});
         db.update("Book", values, "name = ?", new String[] { "The Da Vinci Code" });
     }
 
     private void deleteData() {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        // db.execSQL("delete from Book where pages > ?", new String[] { "500" });
         db.delete("Book", "pages > ?", new String[] { "500" });
     }
 
     private void queryData() {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        // db.rawQuery("select * from Book", null);
         Cursor cursor = db.query("Book", null, null, null, null, null, null);
         mResult.setText("----- query data from Book -----");
         mResult.append("\nTotal count is " + cursor.getCount());
