@@ -2,6 +2,7 @@ package com.file.databasetest;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -16,6 +18,8 @@ public class MainActivity extends Activity implements OnClickListener {
     private Button mAddData;
     private Button mUpdateData;
     private Button mDeleteData;
+    private Button mQueryData;
+    private TextView mResult;
     private MyDatabaseHelper mDbHelper;
 
     @Override
@@ -28,11 +32,14 @@ public class MainActivity extends Activity implements OnClickListener {
         mAddData = (Button) findViewById(R.id.add_data);
         mUpdateData = (Button) findViewById(R.id.update_data);
         mDeleteData = (Button) findViewById(R.id.delete_data);
+        mQueryData = (Button) findViewById(R.id.query_data);
+        mResult = (TextView) findViewById(R.id.result);
 
         mCreateDatabase.setOnClickListener(this);
         mAddData.setOnClickListener(this);
         mUpdateData.setOnClickListener(this);
         mDeleteData.setOnClickListener(this);
+        mQueryData.setOnClickListener(this);
     }
 
     @Override
@@ -68,8 +75,13 @@ public class MainActivity extends Activity implements OnClickListener {
         case R.id.update_data:
             updateData();
             break;
+
         case R.id.delete_data:
             deleteData();
+            break;
+
+        case R.id.query_data:
+            queryData();
             break;
 
         default:
@@ -97,11 +109,31 @@ public class MainActivity extends Activity implements OnClickListener {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("price", 10.99);
-        db.update("Book", values, "name = ?", new String[] {"The Da Vinci Code"});
+        db.update("Book", values, "name = ?", new String[] { "The Da Vinci Code" });
     }
 
     private void deleteData() {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        db.delete("Book", "pages > ?", new String[]{"500"});
+        db.delete("Book", "pages > ?", new String[] { "500" });
+    }
+
+    private void queryData() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        Cursor cursor = db.query("Book", null, null, null, null, null, null);
+        mResult.setText("----- query data from Book -----");
+        mResult.append("\nTotal count is " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex("name"));
+                String author = cursor.getString(cursor.getColumnIndex("author"));
+                int pages = cursor.getInt(cursor.getColumnIndex("pages"));
+                double price = cursor.getDouble(cursor.getColumnIndex("price"));
+                mResult.append("\nname is " + name + "\n"
+                                + "author is " + author + "\n"
+                                + "pages is " + pages + "\n"
+                                + "price is " + price);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
     }
 }
