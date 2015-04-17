@@ -15,6 +15,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private Button mCreateDatabase;
     private Button mAddData;
     private Button mUpdateData;
+    private Button mDeleteData;
     private MyDatabaseHelper mDbHelper;
 
     @Override
@@ -26,10 +27,12 @@ public class MainActivity extends Activity implements OnClickListener {
         mCreateDatabase = (Button) findViewById(R.id.create_database);
         mAddData = (Button) findViewById(R.id.add_data);
         mUpdateData = (Button) findViewById(R.id.update_data);
+        mDeleteData = (Button) findViewById(R.id.delete_data);
 
         mCreateDatabase.setOnClickListener(this);
         mAddData.setOnClickListener(this);
         mUpdateData.setOnClickListener(this);
+        mDeleteData.setOnClickListener(this);
     }
 
     @Override
@@ -65,6 +68,9 @@ public class MainActivity extends Activity implements OnClickListener {
         case R.id.update_data:
             updateData();
             break;
+        case R.id.delete_data:
+            deleteData();
+            break;
 
         default:
             break;
@@ -92,5 +98,10 @@ public class MainActivity extends Activity implements OnClickListener {
         ContentValues values = new ContentValues();
         values.put("price", 10.99);
         db.update("Book", values, "name = ?", new String[] {"The Da Vinci Code"});
+    }
+
+    private void deleteData() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        db.delete("Book", "pages > ?", new String[]{"500"});
     }
 }
