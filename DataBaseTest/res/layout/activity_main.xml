@@ -12,6 +12,13 @@
         android:id="@+id/create_database"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/create_database"/>
+        android:text="@string/create_database" />
+
+    <Button
+        android:id="@+id/add_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_data"
+        android:layout_below="@id/create_database" />
 
 </RelativeLayout>

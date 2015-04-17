@@ -1,6 +1,8 @@
 package com.file.databasetest;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +13,7 @@ import android.widget.Button;
 public class MainActivity extends Activity {
 
     private Button mCreateDatabase;
+    private Button mAddData;
     private MyDatabaseHelper mDbHelper;
 
     @Override
@@ -20,11 +23,33 @@ public class MainActivity extends Activity {
 
         mDbHelper = new MyDatabaseHelper(this, "BookStore.db", null, 2);
         mCreateDatabase = (Button) findViewById(R.id.create_database);
+        mAddData = (Button) findViewById(R.id.add_data);
+
         mCreateDatabase.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 mDbHelper.getWritableDatabase();
+            }
+        });
+
+        mAddData.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put("name", "The Da Vinci Code");
+                values.put("author", "Dan Brown");
+                values.put("pages", 454);
+                values.put("price", 16.96);
+                db.insert("Book", null, values);
+                values.clear();
+                values.put("name", "The Lost Symbol");
+                values.put("author", "Dan Brown");
+                values.put("pages", 510);
+                values.put("price", 19.95);
+                db.insert("Book", null, values);
             }
         });
     }
