@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements OnClickListener {
 
     private static final String TAG = "DatabaseTest/MainActivity";
+    private static final String PATH_BOOK = "content://com.file.databasetest.provider/book";
 
     private Button mCreateDatabase;
     private Button mAddData;
@@ -23,6 +25,13 @@ public class MainActivity extends Activity implements OnClickListener {
     private Button mDeleteData;
     private Button mQueryData;
     private Button mReplaceData;
+
+    private Button mAddBook;
+    private Button mQueryBook;
+    private Button mUpdateBook;
+    private Button mDeleteBook;
+    private String mNewId;
+
     private TextView mResult;
     private MyDatabaseHelper mDbHelper;
 
@@ -32,13 +41,14 @@ public class MainActivity extends Activity implements OnClickListener {
         setContentView(R.layout.activity_main);
 
         mDbHelper = new MyDatabaseHelper(this, "BookStore.db", null, 4);
+        mResult = (TextView) findViewById(R.id.result);
+
         mCreateDatabase = (Button) findViewById(R.id.create_database);
         mAddData = (Button) findViewById(R.id.add_data);
         mUpdateData = (Button) findViewById(R.id.update_data);
         mDeleteData = (Button) findViewById(R.id.delete_data);
         mQueryData = (Button) findViewById(R.id.query_data);
         mReplaceData = (Button) findViewById(R.id.replace_data);
-        mResult = (TextView) findViewById(R.id.result);
 
         mCreateDatabase.setOnClickListener(this);
         mAddData.setOnClickListener(this);
@@ -46,6 +56,16 @@ public class MainActivity extends Activity implements OnClickListener {
         mDeleteData.setOnClickListener(this);
         mQueryData.setOnClickListener(this);
         mReplaceData.setOnClickListener(this);
+
+        mAddBook = (Button) findViewById(R.id.add_book);
+        mQueryBook = (Button) findViewById(R.id.query_book);
+        mUpdateBook = (Button) findViewById(R.id.update_book);
+        mDeleteBook = (Button) findViewById(R.id.delete_book);
+
+        mAddBook.setOnClickListener(this);
+        mQueryBook.setOnClickListener(this);
+        mUpdateBook.setOnClickListener(this);
+        mDeleteBook.setOnClickListener(this);
     }
 
     @Override
@@ -92,6 +112,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case R.id.replace_data:
             replaceData();
+            break;
+
+        case R.id.add_book:
+            addBook();
+            break;
+
+        case R.id.query_book:
+            queryBook();
+            break;
+
+        case R.id.update_book:
+            updateBook();
+            break;
+
+        case R.id.delete_book:
+            deleteBook();
             break;
         default:
             break;
@@ -145,10 +181,8 @@ public class MainActivity extends Activity implements OnClickListener {
                 String author = cursor.getString(cursor.getColumnIndex("author"));
                 int pages = cursor.getInt(cursor.getColumnIndex("pages"));
                 double price = cursor.getDouble(cursor.getColumnIndex("price"));
-                mResult.append("\nname is " + name + "\n"
-                                + "author is " + author + "\n"
-                                + "pages is " + pages + "\n"
-                                + "price is " + price);
+                mResult.append("\nname is " + name + "\n" + "author is " + author + "\n"
+                        + "pages is " + pages + "\n" + "price is " + price);
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -181,5 +215,49 @@ public class MainActivity extends Activity implements OnClickListener {
             db.endTransaction();
             Log.i(TAG, "endTransaction");
         }
+    }
+
+    private void addBook() {
+        Uri uri = Uri.parse(PATH_BOOK);
+        ContentValues values = new ContentValues();
+        values.put("name", "A Clash of Kings");
+        values.put("author", "George");
+        values.put("pages", 1040);
+        values.put("price", 22.85);
+        Uri newUri = getContentResolver().insert(uri, values);
+        mNewId = newUri.getPathSegments().get(1);
+        Log.i(TAG, "New id is " + mNewId);
+    }
+
+    private void queryBook() {
+        Uri uri = Uri.parse(PATH_BOOK);
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        mResult.setText("----- query data from Book -----");
+        mResult.append("\nTotal count is " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex("name"));
+                String author = cursor.getString(cursor.getColumnIndex("author"));
+                int pages = cursor.getInt(cursor.getColumnIndex("pages"));
+                double price = cursor.getDouble(cursor.getColumnIndex("price"));
+                mResult.append("\nname is " + name + "\n" + "author is " + author + "\n"
+                        + "pages is " + pages + "\n" + "price is " + price);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
+    private void updateBook() {
+        Uri uri = Uri.parse(PATH_BOOK + "/" + mNewId);
+        ContentValues values = new ContentValues();
+        values.put("name", "A story of Swords");
+        values.put("pages", 1216);
+        values.put("price", 24.05);
+        getContentResolver().update(uri, values, null, null);
+    }
+
+    private void deleteBook() {
+        Uri uri = Uri.parse(PATH_BOOK + "/" + mNewId);
+        getContentResolver().delete(uri, null, null);
     }
 }

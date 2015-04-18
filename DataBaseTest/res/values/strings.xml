@@ -10,5 +10,10 @@
     <string name="delete_data">Delete data</string>
     <string name="query_data">Query data</string>
     <string name="replace_data">Replace data</string>
+    
+    <string name="add_book">Add to book</string>
+    <string name="query_book">Query from book</string>
+    <string name="update_book">Update book</string>
+    <string name="delete_book">Delete from book</string>
 
 </resources>
