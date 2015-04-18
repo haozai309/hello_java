@@ -11,11 +11,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
     private static final String TAG = "BroadcastTest/MainActivity";
+    private Button mSendBroadcast;
     private IntentFilter mIntentFilter;
     private NetworkChangedReceiver mNetworkChangedReceiver;
 
@@ -23,6 +27,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSendBroadcast = (Button) findViewById(R.id.send_broadcast);
+        mSendBroadcast.setOnClickListener(this);
 
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
@@ -60,8 +67,7 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "onReceive " + intent);
-            ConnectivityManager connectivityManager = (ConnectivityManager)
-                    getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isAvailable()) {
                 Toast.makeText(context, "Network is available.", Toast.LENGTH_SHORT).show();
@@ -72,5 +78,18 @@ public class MainActivity extends Activity {
             }
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.send_broadcast:
+            Intent intent = new Intent("com.example.broadcast.MY_BROADCAST");
+            sendBroadcast(intent);
+            break;
+
+        default:
+            break;
+        }
     }
 }
