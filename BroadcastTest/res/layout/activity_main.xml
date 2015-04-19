@@ -20,4 +20,16 @@
         android:layout_height="wrap_content"
         android:text="@string/send_broadcast" />
 
+    <Button
+        android:id="@+id/send_ordered_broadcast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_ordered_broadcast" />
+
+    <Button
+        android:id="@+id/send_local_broadcast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_local_broadcast" />
+
 </LinearLayout>

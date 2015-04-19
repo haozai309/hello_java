@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +21,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private static final String TAG = "BroadcastTest/MainActivity";
     private Button mSendBroadcast;
+    private Button mSendOrderedBroadcast;
+    private Button mSendLocalBroadcast;
     private IntentFilter mIntentFilter;
     private NetworkChangedReceiver mNetworkChangedReceiver;
+
+    private LocalBroadcastReceiver mLocalBroadcastReceiver;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,18 +35,30 @@ public class MainActivity extends Activity implements OnClickListener {
         setContentView(R.layout.activity_main);
 
         mSendBroadcast = (Button) findViewById(R.id.send_broadcast);
+        mSendOrderedBroadcast = (Button) findViewById(R.id.send_ordered_broadcast);
+        mSendLocalBroadcast = (Button) findViewById(R.id.send_local_broadcast);
+
         mSendBroadcast.setOnClickListener(this);
+        mSendOrderedBroadcast.setOnClickListener(this);
+        mSendLocalBroadcast.setOnClickListener(this);
 
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         mNetworkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(mNetworkChangedReceiver, mIntentFilter);
+
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction("com.example.broadcast.MY_BROADCAST");
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+        mLocalBroadcastReceiver = new LocalBroadcastReceiver();
+        mLocalBroadcastManager.registerReceiver(mLocalBroadcastReceiver, mIntentFilter);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mNetworkChangedReceiver);
+        mLocalBroadcastManager.unregisterReceiver(mLocalBroadcastReceiver);
     }
 
     @Override
@@ -62,6 +80,25 @@ public class MainActivity extends Activity implements OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent("com.example.broadcast.MY_BROADCAST");
+        switch (v.getId()) {
+        case R.id.send_broadcast:
+            sendBroadcast(intent);
+            break;
+
+        case R.id.send_ordered_broadcast:
+            sendOrderedBroadcast(intent, null);
+            break;
+
+        case R.id.send_local_broadcast:
+            mLocalBroadcastManager.sendBroadcast(intent);
+        default:
+            break;
+        }
+    }
+
     class NetworkChangedReceiver extends BroadcastReceiver {
 
         @Override
@@ -80,17 +117,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-        case R.id.send_broadcast:
-            Intent intent = new Intent("com.example.broadcast.MY_BROADCAST");
-//            sendBroadcast(intent);
-            sendOrderedBroadcast(intent, null);
-            break;
+    class LocalBroadcastReceiver extends BroadcastReceiver {
 
-        default:
-            break;
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "receive in LocalBroadcastReceiver");
+            Toast.makeText(context, "receive in LocalBroadcastReceiver", Toast.LENGTH_SHORT).show();
         }
+
     }
 }
