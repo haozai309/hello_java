@@ -85,7 +85,8 @@ public class MainActivity extends Activity implements OnClickListener {
         switch (v.getId()) {
         case R.id.send_broadcast:
             Intent intent = new Intent("com.example.broadcast.MY_BROADCAST");
-            sendBroadcast(intent);
+//            sendBroadcast(intent);
+            sendOrderedBroadcast(intent, null);
             break;
 
         default:

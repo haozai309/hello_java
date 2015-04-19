@@ -14,5 +14,6 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "onReceive " + intent);
         Toast.makeText(context, "receive in MyBroadcastReceiver", Toast.LENGTH_SHORT).show();
+        abortBroadcast();
     }
 }
