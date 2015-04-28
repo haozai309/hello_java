@@ -1,4 +1,4 @@
-package com.patter.builder;
+package com.pattern.builder;
 
 /*
  * Builder pattern: Separate the construction of a complex object from its representation so that

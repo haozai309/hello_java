@@ -1,4 +1,4 @@
-package com.patter.template;
+package com.pattern.template;
 
 public abstract class AbstractClass {
 
