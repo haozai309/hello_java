@@ -45,9 +45,9 @@ public class Client {
     }
 
     private static String getTreeInfo(Branch root) {
-        ArrayList<ICorp> subordinateList = root.getSubordinate();
+        ArrayList<Corp> subordinateList = root.getSubordinate();
         String info = "";
-        for (ICorp s : subordinateList) {
+        for (Corp s : subordinateList) {
             if (s instanceof Leaf) {
                 info += s.getInfo() + "\n";
             } else {

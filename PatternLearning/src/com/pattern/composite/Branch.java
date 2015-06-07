@@ -2,36 +2,19 @@ package com.pattern.composite;
 
 import java.util.ArrayList;
 
-public class Branch implements IBranch {
+public class Branch extends Corp {
 
-    private String mName = "";
-
-    private String mPosition = "";
-
-    private int mSalary;
-
-    private ArrayList<ICorp> mSubordinateList = new ArrayList<ICorp>();
+    private ArrayList<Corp> mSubordinateList = new ArrayList<Corp>();
 
     public Branch(String name, String position, int salary) {
-        mName = name;
-        mPosition = position;
-        mSalary = salary;
+        super(name, position, salary);
     }
 
-    @Override
-    public String getInfo() {
-        return "name: " + mName + "\t\t" +
-                "position: " +  mPosition + "\t\t" +
-                "salary: " + mSalary;
-    }
-
-    @Override
-    public void addSubordinate(ICorp corp) {
+    public void addSubordinate(Corp corp) {
         mSubordinateList.add(corp);
     }
 
-    @Override
-    public ArrayList<ICorp> getSubordinate() {
+    public ArrayList<Corp> getSubordinate() {
         return mSubordinateList;
     }
 
