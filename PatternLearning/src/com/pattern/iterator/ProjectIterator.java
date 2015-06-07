@@ -27,4 +27,8 @@ public class ProjectIterator implements IProjectIterator {
         return (IProject) mProjectList.get(currentItem);
     }
 
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("remove");
+    }
 }
